@@ -8,6 +8,13 @@
 
 **Tech Stack:** TypeScript, Convex, Express, Sendblue API, tsx (scripts)
 
+**Branch:** Create a new branch `feat/loom-foundation` off `main` before starting any work.
+
+```bash
+git checkout main
+git checkout -b feat/loom-foundation
+```
+
 ---
 
 ## File Map
