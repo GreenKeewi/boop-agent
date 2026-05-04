@@ -17,7 +17,7 @@ Inspired by Lindy AI but designed for normal people: the onboarding happens enti
 ## Rebrand
 
 - Product name: **Ari**
-- Domain: to be decided (e.g. `heyari.ai`, `useari.app`)
+- Domain: `heyari.sh`
 - All references to "Boop" replaced throughout codebase, UI, and docs
 - New README written from scratch (see README section below)
 
@@ -90,7 +90,7 @@ All existing tables (`messages`, `agents`, `automations`, `memoryRecords`, `draf
 
 ## Tiers
 
-| | Free | Starter | Core | Max |
+| | Free | Starter ($9/mo) | Core ($19/mo) | Max ($49/mo) |
 |---|---|---|---|---|
 | Messages/day | 10 | 50 | 200 | Unlimited |
 | Model | Haiku | Haiku | Sonnet | Opus |
@@ -106,7 +106,7 @@ New users start on a **7-day Core trial**. After expiry, they drop to Free unles
 
 ### iMessage onboarding (primary flow)
 
-1. Admin pre-provisions a pool of Sendblue numbers stored in `numberPool` with status `available`.
+1. Admin pre-provisions a pool of 10 Sendblue numbers stored in `numberPool` with status `available`.
 2. A new phone texts any available number. The Convex HTTP action sees the number is unassigned → creates a `users` record with `tier: "core"`, `trialExpiresAt: now + 7 days`, assigns the Sendblue number permanently, creates a Composio entity for the user.
 3. The agent starts in **sales mode**: introduces Ari, explains capabilities, pitches the 7-day Core trial, answers questions.
 4. When user texts the trigger word `SIGNUP`, the `completeSignup` mutation marks the user active.
