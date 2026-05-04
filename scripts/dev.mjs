@@ -40,7 +40,9 @@ const port = envVars.PORT || "3456";
 const ngrokDomain = envVars.NGROK_DOMAIN || "";
 const publicUrl = envVars.PUBLIC_URL || "";
 const hasStaticUrl =
-  publicUrl && !publicUrl.includes("localhost") && !publicUrl.includes("127.0.0.1");
+  publicUrl &&
+  !publicUrl.includes("localhost") &&
+  !publicUrl.includes("127.0.0.1");
 const useNgrok = !hasStaticUrl || Boolean(ngrokDomain);
 
 // --- binary detection ---------------------------------------------------
@@ -78,9 +80,11 @@ const NOISE_TRIGGERS = [
 const STACK_LINE = /^\s+at\s/;
 
 function run(name, cmd, args, readyPattern) {
+  const useShell = process.platform === "win32";
   const child = spawn(cmd, args, {
     cwd: root,
     env: { ...process.env, FORCE_COLOR: "1" },
+    shell: useShell,
   });
   const prefix = `${C[name]}${name.padEnd(6)}${C.reset} │ `;
   let buf = "";
@@ -124,7 +128,9 @@ async function waitForNgrokUrl(timeoutMs = 15000) {
       const res = await fetch("http://127.0.0.1:4040/api/tunnels");
       if (res.ok) {
         const data = await res.json();
-        const https = data.tunnels?.find((t) => t.proto === "https")?.public_url;
+        const https = data.tunnels?.find(
+          (t) => t.proto === "https",
+        )?.public_url;
         if (https) return https;
       }
     } catch {
@@ -184,7 +190,9 @@ ${C.dim}  Install:   brew install ngrok         (macOS)
   }
 }
 
-console.log(`\nBoop dev starting on port ${port}. Ctrl-C to stop everything.\n`);
+console.log(
+  `\nBoop dev starting on port ${port}. Ctrl-C to stop everything.\n`,
+);
 
 // Background "new-version available?" check. Runs concurrently with the
 // child services; output is prefixed with `upstream │ ` by run() so it
@@ -193,30 +201,40 @@ console.log(`\nBoop dev starting on port ${port}. Ctrl-C to stop everything.\n`)
 // non-zero exit (which shouldn't happen but hedge anyway) to tear down dev.
 run("upstream", "node", ["scripts/check-upstream.mjs"]);
 
-const serverChild = run(
-  "server",
-  "npx",
-  ["tsx", "watch", "server/index.ts"],
-  /listening on :/,
-);
+function binPath(name) {
+  const win = process.platform === "win32";
+  const ext = win ? ".cmd" : "";
+  return resolve(root, "node_modules", ".bin", name + ext);
+}
+
+const serverCmd = binPath("tsx");
+const serverArgs = ["watch", "server/index.ts"];
+const convexCmd = binPath("convex");
+const convexArgs = ["dev"];
+const debugCmd = binPath("vite");
+const debugArgs = ["--config", "debug/vite.config.ts"];
+
+const serverChild = run("server", serverCmd, serverArgs, /listening on :/);
 const convexChild = run(
   "convex",
-  "npx",
-  ["convex", "dev"],
+  convexCmd,
+  convexArgs,
   /Convex functions ready/,
 );
-const debugChild = run(
-  "debug",
-  "npx",
-  ["vite", "--config", "debug/vite.config.ts"],
-  /Local:\s+http/,
-);
+const debugChild = run("debug", debugCmd, debugArgs, /Local:\s+http/);
 const children = [serverChild, convexChild, debugChild];
 
 let ngrokUrlReady = Promise.resolve(null);
 if (useNgrok && ngrokInstalled) {
   const args = ngrokDomain
-    ? ["http", port, `--domain=${ngrokDomain}`, "--log=stdout", "--log-format=term", "--log-level=info"]
+    ? [
+        "http",
+        port,
+        `--domain=${ngrokDomain}`,
+        "--log=stdout",
+        "--log-format=term",
+        "--log-level=info",
+      ]
     : ["http", port, "--log=stdout", "--log-format=term", "--log-level=info"];
   const ngrokChild = run("ngrok", "ngrok", args);
   children.push(ngrokChild);
@@ -302,7 +320,9 @@ process.on("SIGTERM", () => shutdown(0));
 for (const c of children) {
   c.on("exit", (code) => {
     if (!shuttingDown && code !== null && code !== 0) {
-      console.error(`\nA child process exited with code ${code}. Shutting down.`);
+      console.error(
+        `\nA child process exited with code ${code}. Shutting down.`,
+      );
       shutdown(code);
     }
   });
