@@ -1,14 +1,14 @@
-# Ari — SaaS Design Spec
+# Loom — SaaS Design Spec
 
 **Date:** 2026-05-03
-**Project:** Boop Agent → Ari (rebrand)
+**Project:** Boop Agent → Loom (rebrand)
 **Approach:** Convex-as-hub, multi-tenant SaaS
 
 ---
 
 ## Overview
 
-Ari is a personal iMessage AI agent offered as a SaaS product. Users get a dedicated iMessage number, talk to their agent naturally, set up cron automations, and connect integrations — all from their phone. A web dashboard handles settings, billing, automations, and conversation history.
+Loom is a personal iMessage AI agent offered as a SaaS product. Users get a dedicated iMessage number, talk to their agent naturally, set up cron automations, and connect integrations — all from their phone. A web dashboard handles settings, billing, automations, and conversation history.
 
 Inspired by Lindy AI but designed for normal people: the onboarding happens entirely inside iMessage, the agent sells itself, and the web dashboard is for power users.
 
@@ -16,8 +16,8 @@ Inspired by Lindy AI but designed for normal people: the onboarding happens enti
 
 ## Rebrand
 
-- Product name: **Ari**
-- Domain: `heyari.sh`
+- Product name: **Loom**
+- Domain: `heyloom.ai`
 - All references to "Boop" replaced throughout codebase, UI, and docs
 - New README written from scratch (see README section below)
 
@@ -108,9 +108,9 @@ New users start on a **7-day Core trial**. After expiry, they drop to Free unles
 
 1. Admin pre-provisions a pool of 10 Sendblue numbers stored in `numberPool` with status `available`.
 2. A new phone texts any available number. The Convex HTTP action sees the number is unassigned → creates a `users` record with `tier: "core"`, `trialExpiresAt: now + 7 days`, assigns the Sendblue number permanently, creates a Composio entity for the user.
-3. The agent starts in **sales mode**: introduces Ari, explains capabilities, pitches the 7-day Core trial, answers questions.
+3. The agent starts in **sales mode**: introduces Loom, explains capabilities, pitches the 7-day Core trial, answers questions.
 4. When user texts the trigger word `SIGNUP`, the `completeSignup` mutation marks the user active.
-5. The assigned Sendblue number is locked to that user forever. Messages from an unknown sender to an assigned number receive: "This number belongs to someone else. Visit [domain] to get your own Ari."
+5. The assigned Sendblue number is locked to that user forever. Messages from an unknown sender to an assigned number receive: "This number belongs to someone else. Visit [domain] to get your own Loom."
 
 ### Web auth (Clerk)
 
@@ -179,7 +179,7 @@ All enforcement happens server-side in Convex — nothing is enforced client-sid
 
 ## README (to be written during implementation)
 
-The new README for Ari must cover:
+The new README for Loom must cover:
 
 ### Setup
 - Prerequisites: Node.js 20+, Convex account, Clerk account, Sendblue account (agent plan), Stripe account, Composio account
@@ -220,7 +220,7 @@ Full table of every env var, what it does, where to get it:
 
 ## Implementation Phases
 
-1. **Rebrand** — rename Boop → Ari throughout codebase, update assets
+1. **Rebrand** — rename Boop → Loom throughout codebase, update assets
 2. **Multi-tenant Convex schema** — add `userId` to all tables, `users` + `numberPool` + `dailyUsage` tables
 3. **Auth** — Clerk integration, phone-based signup flow, web login challenge
 4. **Billing** — Stripe subscriptions, webhook handler, trial expiry scheduled function
